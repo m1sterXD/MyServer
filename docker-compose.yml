@@ -1,0 +1,21 @@
+version: "3"
+services:
+  server:
+    build: ./ServerApi    
+    ports:
+      - "8080:8080"    
+    networks:
+      - app-network
+
+  client:
+    build: ./ClientApi    
+    ports:
+      - "8081:8081"     
+    networks:
+      - app-network
+    depends_on:
+      - server           
+
+networks:
+  app-network:
+    driver: bridge
