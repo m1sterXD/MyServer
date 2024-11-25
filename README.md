@@ -3,8 +3,8 @@ This project is currently a work in progress. Features and functionality may cha
 ## AS IS
 ### Microservices:
 There are two microservices:
-    - One starts up a server and listens for requests.
-    - The other makes requests to the server.
+- One starts up a server and listens for requests.
+- The other makes requests to the server.
 Both are containerized using Docker.
 
 ### Two more microservices: (added in version 0.2)
