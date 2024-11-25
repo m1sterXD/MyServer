@@ -18,19 +18,19 @@ type User struct {
 }
 
 var Users = make(map[int]User)
-var CreateCount = prometheus.NewGauge(prometheus.GaugeOpts{
-	Name: "http_Create_request_total",
+var CurrentReq = prometheus.NewGauge(prometheus.GaugeOpts{
+	Name: "http_Current_requests",
 	Help: "Total number of Create HTTP request",
 })
 
-var requestCount = prometheus.NewGauge(prometheus.GaugeOpts{
+var TotalCount = prometheus.NewGauge(prometheus.GaugeOpts{
 	Name: "http_request_total",
 	Help: "Total number of HTTP request",
 })
 
 func init() {
-	prometheus.MustRegister(requestCount)
-	prometheus.MustRegister(CreateCount)
+	prometheus.MustRegister(TotalCount)
+	prometheus.MustRegister(CurrentReq)
 }
 
 func main() {
@@ -46,7 +46,9 @@ func main() {
 }
 
 func CreateUser(w http.ResponseWriter, req *http.Request) {
-	CreateCount.Inc()
+	CurrentReq.Inc()
+	TotalCount.Inc()
+
 	log.Println("Received request: ", req.URL.Path)
 	log.Println("CREATING USER")
 	var user User
@@ -66,10 +68,12 @@ func CreateUser(w http.ResponseWriter, req *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(user)
 	log.Printf("USER [%s] HAS BEEN CREATED\n", user.Name)
-	// CreateCount.Dec()
+	CurrentReq.Dec()
 }
 func ReadUser(w http.ResponseWriter, req *http.Request) {
-	requestCount.Inc()
+	CurrentReq.Inc()
+	TotalCount.Inc()
+
 	log.Println("Received request: ", req.URL.Path)
 	log.Println("READING USER")
 
@@ -85,9 +89,12 @@ func ReadUser(w http.ResponseWriter, req *http.Request) {
 	}
 	json.NewEncoder(w).Encode(user)
 	log.Printf("USER [%s] HAS BEEN READED\n", user.Name)
-	requestCount.Dec()
+	CurrentReq.Dec()
 }
 func UpdateUser(w http.ResponseWriter, req *http.Request) {
+	CurrentReq.Inc()
+	TotalCount.Inc()
+
 	log.Println("Received request: ", req.URL.Path)
 	log.Println("UPDATING USER")
 
@@ -112,9 +119,12 @@ func UpdateUser(w http.ResponseWriter, req *http.Request) {
 	Users[id] = user
 	json.NewEncoder(w).Encode(user)
 	log.Printf("USER [%s] HAS BEEN UPDATED\n", user.Name)
-
+	CurrentReq.Dec()
 }
 func DeleteUser(w http.ResponseWriter, req *http.Request) {
+	CurrentReq.Inc()
+	TotalCount.Inc()
+
 	log.Println("Received request: ", req.URL.Path)
 	log.Println("DELETING USER")
 
@@ -126,5 +136,5 @@ func DeleteUser(w http.ResponseWriter, req *http.Request) {
 	delete(Users, id)
 	w.WriteHeader(http.StatusNoContent)
 	log.Printf("USER [%s] HAS BEEN DELETED\n", Users[id].Name)
-
+	CurrentReq.Dec()
 }

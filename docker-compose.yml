@@ -14,8 +14,34 @@ services:
     networks:
       - app-network
     depends_on:
-      - server           
+      - server  
+
+  prometheus:
+    build: ./PrometheusServer
+    ports:
+      - "9090:9090"  
+    networks:
+      - app-network  
+    depends_on:
+       - server
+
+  grafana:
+    build: ./grafana
+    ports:
+      - "3000:3000"
+    networks:
+      - app-network
+    environment:
+      - GF_LOG_LEVEL=warn
+      - GF_SECURITY_ADMIN_PASSWORD=MyGrafana
+    volumes:
+      - grafana-data:/var/lib/grafana
+    depends_on:
+      - prometheus
+          
 
 networks:
   app-network:
     driver: bridge
+volumes: 
+    grafana-data:
